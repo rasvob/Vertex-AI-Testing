@@ -58,11 +58,15 @@ Important:
 
 Use this when you want IAM-based auth, GCP project scoping, enterprise controls, or when a model is only available to you via Vertex.
 
+#### Local development (your personal Google account)
+
 1. Authenticate Application Default Credentials (ADC):
 
 ```bash
 gcloud auth application-default login
 ```
+
+This saves a credential file to `~/.config/gcloud/application_default_credentials.json`. The SDK picks it up automatically — no extra env vars needed for auth.
 
 2. Set Vertex-related env vars in `.env`:
 
@@ -73,10 +77,47 @@ GOOGLE_CLOUD_LOCATION=us-central1
 GEMINI_MODEL=gemini-2.5-flash
 ```
 
+> **Do not use `gcloud auth application-default login` credentials in production.** They are tied to your personal Google account and expire. Use a service account instead (see below).
+
+#### Production (service account)
+
+Service accounts are GCP identities created for applications rather than people. They authenticate without a browser and are the correct credential type for deployed workloads.
+
+**Option A — Running on Google Cloud (Cloud Run, GKE, GCE, Cloud Functions, etc.)**
+
+Attach a service account to your compute resource at deploy time. The SDK picks up credentials automatically from the GCP metadata server — no key files or env vars needed.
+
+1. Create a service account in your GCP project and grant it the `Vertex AI User` role (`roles/aiplatform.user`).
+2. Attach it to your Cloud Run service, GCE instance, etc. during deployment.
+3. Your `.env` needs only:
+
+```env
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+**Option B — Running outside Google Cloud (on-prem, other cloud, CI/CD)**
+
+1. Create a service account and grant it the `Vertex AI User` role (`roles/aiplatform.user`).
+2. Download a JSON key file from the GCP Console (IAM & Admin → Service Accounts → Keys).
+3. Point the SDK at it via `GOOGLE_APPLICATION_CREDENTIALS`:
+
+```env
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+GEMINI_MODEL=gemini-2.5-flash
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
+```
+
+> **Security:** Never commit JSON key files or secrets to source control. Add them to `.gitignore`. Prefer Option A (attached service account) when possible to avoid managing key files altogether.
+
 Notes:
 
 - `GOOGLE_CLOUD_LOCATION` must be a region supported by your Vertex setup (commonly `us-central1`).
-- You may also need to enable relevant APIs in your GCP project and ensure your account/service account has permissions.
+- You may also need to enable the Vertex AI API (`aiplatform.googleapis.com`) in your GCP project.
 
 ## Run
 
