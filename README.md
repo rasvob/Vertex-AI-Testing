@@ -7,8 +7,6 @@ Small Python CLI chatbot that calls Gemini models using the `google-genai` SDK.
   - **Gemini Developer API** (API key auth)
   - **Vertex AI** (OAuth/IAM via Application Default Credentials, or Vertex API key setups)
 
-> Note: The current `SYSTEM_PROMPT` in `main.py` is a mental health support companion prompt. This is not medical care. If you or someone else is in immediate danger, call your local emergency number. In the US, you can call or text `988` for the Suicide & Crisis Lifeline.
-
 ## Requirements
 
 - Python `>= 3.12` (see `pyproject.toml`)
@@ -112,7 +110,7 @@ GEMINI_MODEL=gemini-2.5-flash
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 ```
 
-> **Security:** Never commit JSON key files or secrets to source control. Add them to `.gitignore`. Prefer Option A (attached service account) when possible to avoid managing key files altogether.
+> **Security:** Never commit JSON key files or secrets to source control.
 
 Notes:
 
